@@ -113,3 +113,8 @@
         mode: '0755'
         owner: "{{ cicd_username }}"
         group: "{{ cicd_username }}"
+
+    - name: Run firststart.sh script
+      command: /home/{{ cicd_username }}/firststart.sh
+      become: yes
+      become_user: "{{ cicd_username }}"
