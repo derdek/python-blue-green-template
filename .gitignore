@@ -1,0 +1,7 @@
+.venv/
+.idea/
+.env
+
+# sqlite database
+db.sqlite
+postgres_data/

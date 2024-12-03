@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:13
+    env_file:
+      - .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  traefik:
+    image: traefik:v2.4
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - ./traefik.yml:/etc/traefik/traefik.yml
+      - ./dynamic:/etc/traefik/dynamic:ro
+
+  backend-blue:
+    build: .
+    env_file:
+      - .env
+    labels:
+      - "traefik.http.routers.backend-blue.rule=Host(`blue.docker.localhost`)"
+      - "traefik.http.services.backend-blue.loadbalancer.server.port=3000"
+    depends_on:
+      - db
+    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "3000"]
+
+  backend-green:
+    build: .
+    env_file:
+      - .env
+    labels:
+      - "traefik.http.routers.backend-green.rule=Host(`green.docker.localhost`)"
+      - "traefik.http.services.backend-green.loadbalancer.server.port=3000"
+    depends_on:
+      - db
+    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "3000"]
+
+volumes:
+  postgres_data:

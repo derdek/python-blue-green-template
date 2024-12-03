@@ -1,0 +1,6 @@
+http:
+  services:
+    green:
+      loadBalancer:
+        servers:
+          - url: 'http://backend-green:3000/'

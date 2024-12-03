@@ -1,0 +1,5 @@
+http:
+  routers:
+    blue-docker-localhost:
+      rule: Host(`blue.docker.localhost`)
+      service: blue@file

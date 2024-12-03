@@ -1,0 +1,6 @@
+http:
+  services:
+    blue:
+      loadBalancer:
+        servers:
+          - url: 'http://backend-blue:3000/'

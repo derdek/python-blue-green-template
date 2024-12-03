@@ -1,0 +1,115 @@
+---
+- name: Install packages on server
+  hosts: servers
+  become: yes
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install sudo
+      apt:
+        name: sudo
+        state: present
+
+    - name: Install vim
+      apt:
+        name: vim
+        state: present
+
+    - name: Install git
+      apt:
+        name: git
+        state: present
+
+    - name: Install curl
+      apt:
+        name: curl
+        state: present
+
+    - name: Install Docker
+      apt:
+        name: docker.io
+        state: present
+
+    - name: Install Docker Compose
+      get_url:
+        url: https://github.com/docker/compose/releases/download/v2.31.0/docker-compose-linux-x86_64
+        dest: /usr/local/bin/docker-compose
+        mode: '0755'
+
+    - name: Create symbolic link for Docker Compose
+      file:
+        src: /usr/local/bin/docker-compose
+        dest: /usr/bin/docker-compose
+        state: link
+
+    - name: Create user cicd
+      user:
+        name: "{{ cicd_username }}"
+        state: present
+        shell: /bin/bash
+        create_home: yes
+
+    - name: Create docker group
+      group:
+        name: docker
+        state: present
+
+    - name: Add user to docker group
+      user:
+        name: "{{ cicd_username }}"
+        groups: docker
+        append: true
+
+    - name: Reset ssh connection to allow user changes to affect ansible user
+      meta:
+        reset_connection
+
+    - name: Ensure .ssh directory exists for cicd user
+      file:
+        path: /home/{{ cicd_username }}/.ssh
+        state: directory
+        mode: '0700'
+        owner: "{{ cicd_username }}"
+        group: "{{ cicd_username }}"
+
+    - name: Add SSH key to authorized_keys for cicd user
+      copy:
+        content: "{{ cicd_ssh_key }}"
+        dest: /home/{{ cicd_username }}/.ssh/authorized_keys
+        mode: '0600'
+        owner: "{{ cicd_username }}"
+        group: "{{ cicd_username }}"
+
+    - name: Copy GitHub deploy key to remote server
+      copy:
+        src: "{{ github_deploy_key_path }}"
+        dest: /home/{{ cicd_username }}/.ssh/id_rsa
+        mode: '0600'
+        owner: "{{ cicd_username }}"
+        group: "{{ cicd_username }}"
+
+    - name: Copy .env to remote server
+      copy:
+        src: "{{ env_file_path }}"
+        dest: /home/{{ cicd_username }}/.env
+        mode: '0644'
+        owner: "{{ cicd_username }}"
+        group: "{{ cicd_username }}"
+
+    - name: Copy .ssh/config to remote server
+      copy:
+        src: "{{ ssh_config_file_path }}"
+        dest: /home/{{ cicd_username }}/.ssh/config
+        mode: '0644'
+        owner: "{{ cicd_username }}"
+        group: "{{ cicd_username }}"
+
+    - name: Copy firststart.sh to remote server
+      copy:
+        src: "{{ firststart_script_path }}"
+        dest: /home/{{ cicd_username }}/firststart.sh
+        mode: '0755'
+        owner: "{{ cicd_username }}"
+        group: "{{ cicd_username }}"
