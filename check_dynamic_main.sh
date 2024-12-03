@@ -15,7 +15,7 @@ if [ ! -f "$FILE_PATH" ]; then
 http:
   routers:
     docker-localhost:
-      # rule: Host(\`schedule.knu.dev\`)
+      # rule: Host(\`example.com\`)
       rule: HostRegexp(\`{host:.+}\`)
       service: blue@file
 EOF
