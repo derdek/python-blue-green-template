@@ -38,10 +38,7 @@ bash check_dynamic_main.sh
 # Визначаємо, який контейнер потрібно оновити
 current_active=$(grep 'service:' dynamic/http.routers.docker-localhost.yml | awk '{print $2}')
 
-# Отримання хеша останнього коміта
-LAST_COMMIT_HASH=$(git rev-parse HEAD)
-# Оновлення рядка LAST_COMMIT_HASH у .env файлі
-sed -i "s/^LAST_COMMIT_HASH=.*/LAST_COMMIT_HASH=$LAST_COMMIT_HASH/" .env
+bash write_last_commit_hash_to_env.sh
 
 if [ "$current_active" == "blue@file" ]; then
   # Оновлюємо green контейнер
