@@ -2,6 +2,8 @@ import os
 from logging.config import fileConfig
 from sqlalchemy import create_engine
 from alembic import context
+
+from src.get_database_url import get_database_url
 from src.models import Base
 
 # this is the Alembic Config object, which provides
@@ -24,16 +26,9 @@ target_metadata = Base.metadata
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
 
+
 def get_url():
-    POSTGRES_DB = os.getenv("POSTGRES_DB")
-    POSTGRES_USER = os.getenv("POSTGRES_USER")
-    POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD")
-    POSTGRES_HOST = os.getenv("POSTGRES_HOST")
-    POSTGRES_PORT = os.getenv("POSTGRES_PORT")
-    SQLALCHEMY_DATABASE_URL = None
-    if POSTGRES_DB and POSTGRES_USER and POSTGRES_PASSWORD and POSTGRES_HOST and POSTGRES_PORT:
-        SQLALCHEMY_DATABASE_URL = f"postgresql+psycopg2://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}"
-    return SQLALCHEMY_DATABASE_URL or config.get_main_option("sqlalchemy.url")
+    return get_database_url() or config.get_main_option("sqlalchemy.url")
 
 
 def run_migrations_offline():
