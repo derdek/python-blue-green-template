@@ -23,7 +23,7 @@ def shutdown():
 
 @app.get("/")
 async def read_root():
-    return {}
+    return "Hello, world!"
 
 @app.get('/version')
 async def version():
